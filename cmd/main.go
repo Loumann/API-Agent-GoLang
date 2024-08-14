@@ -4,7 +4,6 @@ import (
 	"awesomeProject/config"
 	"awesomeProject/handler"
 	"awesomeProject/repos"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
 )
@@ -32,17 +31,12 @@ func main() {
 }
 
 func GetRouters(h *handler.Handler) *gin.Engine {
-
 	r := gin.Default()
 
-	r.POST("/create-user", h.AddUser)
+	r.POST("/create-user", h.AddAgent)
 	r.GET("/agents", h.GetAgents)
 	r.PUT("/agents/:id", h.UpdateAgent)
-	r.DELETE("/agents/:id", h.DeleteUser)
-	r.POST("/create-quest")
-
-	fmt.Println("Server is listening...")
-	r.Run(":8081")
+	r.DELETE("/agents/:id", h.DeleteAgent)
 
 	return r
 }

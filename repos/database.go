@@ -44,10 +44,19 @@ func (r *Repository) GetUsers() ([]models.Agent, error) {
 	}
 	return agents, nil
 }
-func (r *Repository) UpdateAgent(agent models.Agent) error {
+func (r *Repository) UpdateAgent(agent models.Agent) (bool, error) {
+	var count int
+	err := r.db.QueryRow("SELECT COUNT(*) FROM agents WHERE id=$1", agent.ID).Scan(&count)
+	if err != nil {
+		return false, err
+	}
+	if count == 0 {
+		return false, nil
+	}
+
 	query := `UPDATE agents SET agentname=$1, status=$2 WHERE id=$3`
-	_, err := r.db.Exec(query, agent.AgentName, agent.Status, agent.ID)
-	return err
+	_, err = r.db.Exec(query, agent.AgentName, agent.Status, agent.ID)
+	return true, err
 }
 func (r *Repository) DeleteUser(id int) error {
 	_, err := r.db.Exec("DELETE FROM agents WHERE id=$1", id)

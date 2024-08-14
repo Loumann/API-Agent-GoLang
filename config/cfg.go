@@ -18,7 +18,6 @@ type Config struct {
 }
 
 func ReadCfg() (*Config, error) {
-
 	var config Config
 
 	file, err := os.ReadFile(configPatch)

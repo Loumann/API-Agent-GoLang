@@ -26,7 +26,7 @@ func (h *Handler) GetAgents(c *gin.Context) {
 		c.JSON(http.StatusOK, agents)
 	}
 }
-func (h *Handler) DeleteUser(c *gin.Context) {
+func (h *Handler) DeleteAgent(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -40,7 +40,7 @@ func (h *Handler) DeleteUser(c *gin.Context) {
 	}
 	c.JSON(200, gin.H{"message": "user deleted"})
 }
-func (h *Handler) AddUser(c *gin.Context) {
+func (h *Handler) AddAgent(c *gin.Context) {
 	var input CreateUserInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -71,12 +71,33 @@ func (h *Handler) UpdateAgent(c *gin.Context) {
 	}
 	agent.ID = id
 
-	if err := h.r.UpdateAgent(agent); err != nil {
+	updated, err := h.r.UpdateAgent(agent)
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update agent"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"message": "agent updated successfully",
-		"agent":   agent,
-	})
+	if !updated {
+		c.JSON(404, gin.H{"message": "agent not found"})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "agent updated successfully",
+			"agent":   agent,
+		})
+	}
+}
+
+func (h *Handler) CreateQuest(c *gin.Context) {
+	var inputQuest models.Quest
+
+	if err := c.ShouldBindJSON(&inputQuest); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := h.r.CreateQuest(inputQuest.Quest, inputQuest.AgentId); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Err()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "quest created successfully"})
 }
