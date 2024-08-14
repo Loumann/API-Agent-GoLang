@@ -94,10 +94,5 @@ func (h *Handler) CreateQuest(c *gin.Context) {
 		return
 	}
 
-	if err := h.r.CreateQuest(inputQuest.Quest, inputQuest.AgentId); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Err()})
-		return
-	}
-
 	c.JSON(http.StatusOK, gin.H{"message": "quest created successfully"})
 }
