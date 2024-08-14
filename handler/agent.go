@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"awesomeProject/models"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -13,44 +14,20 @@ type CreateUserInput struct {
 	Status    string `json:"status" db:"status"`
 }
 
-func (h *Handler) RenderUsersPage(c *gin.Context) error {
-	// Получаем пользователей из базы данных
-	users, err := h.r.GetUsers(c)
-	if err != nil {
-		// Возвращаем JSON-ответ с ошибкой
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve users"})
-		return err
-	}
-
-	// Парсим HTML-шаблон
-	tmpl, err := template.ParseFiles("assets/page.html")
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse template"})
-		return err
-	}
-
-	// Передаем данные в шаблон и рендерим его
-	if err := tmpl.Execute(c.Writer, users); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to render template"})
-		return err
-	}
-
-	return nil
-}
-
 func (h *Handler) GetAgents(c *gin.Context) {
-	if err := h.r.GetUsers(); err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	agents, err := h.r.GetUsers()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
-}
-func (h *Handler) UpdateAgent(c *gin.Context) {
-	if err := h.r.GetUsers(); err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	if agents == nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "no agents found"})
+	} else {
+		c.JSON(http.StatusOK, agents)
 	}
 }
 func (h *Handler) DeleteUser(c *gin.Context) {
 	idStr := c.Param("id")
-
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
@@ -61,9 +38,7 @@ func (h *Handler) DeleteUser(c *gin.Context) {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-
 	c.JSON(200, gin.H{"message": "user deleted"})
-
 }
 func (h *Handler) AddUser(c *gin.Context) {
 	var input CreateUserInput
@@ -80,4 +55,28 @@ func (h *Handler) AddUser(c *gin.Context) {
 	}
 	c.JSON(201, gin.H{"message": "user added"})
 
+}
+func (h *Handler) UpdateAgent(c *gin.Context) {
+	var agent models.Agent
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid agent ID"})
+		return
+	}
+
+	if err := c.ShouldBindJSON(&agent); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request data(or json body)"})
+		return
+	}
+	agent.ID = id
+
+	if err := h.r.UpdateAgent(agent); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update agent"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": "agent updated successfully",
+		"agent":   agent,
+	})
 }

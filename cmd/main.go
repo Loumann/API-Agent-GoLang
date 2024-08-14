@@ -37,7 +37,7 @@ func GetRouters(h *handler.Handler) *gin.Engine {
 
 	r.POST("/create-user", h.AddUser)
 	r.GET("/agents", h.GetAgents)
-	r.POST("/agents/:id", h.UpdateAgent)
+	r.PUT("/agents/:id", h.UpdateAgent)
 	r.DELETE("/agents/:id", h.DeleteUser)
 	r.POST("/create-quest")
 

@@ -40,6 +40,7 @@ func (r *Repository) GetUsers() ([]models.Agent, error) {
 			return nil, err
 		}
 		agents = append(agents, agent)
+
 	}
 	return agents, nil
 }
