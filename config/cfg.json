@@ -1,8 +1,8 @@
 {
-  "host": "localhost",
-  "port": "5432",
-  "username": "postgres",
-  "password": "123654",
-  "dbname": "TestAPI",
+  "host": "",
+  "port": "",
+  "username": "",
+  "password": "",
+  "dbname": "",
   "ssl_mode": "disable"
 }
