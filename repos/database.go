@@ -16,10 +16,10 @@ type Repository struct {
 var db *sqlx.DB
 var dbDriveName = "postgres"
 
-func DbConnection(config *config.Config) (*sqlx.DB, error) {
+func DbConnection(env *models.EnVariatiles, config *config.Config) (*sqlx.DB, error) {
 	return sqlx.Connect(dbDriveName,
 		fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
-			config.Host, config.Port, config.Username, config.Password, config.Dbname, config.SSLmode))
+			config.Host, config.Port, env.PostgresUser, env.PostgresPassword, config.Dbname, config.SSLmode))
 }
 func GetRepository(db *sqlx.DB) *Repository {
 	return &Repository{
